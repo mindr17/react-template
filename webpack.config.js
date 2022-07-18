@@ -1,13 +1,12 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const HtmlWebpackPlugin = require('mini-css-extract-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const mode = process.env.NODE_ENV || 'development';
 
 module.exports = {
   mode,
-  devtool: mode === 'development' ? 'eval' : false;
+  devtool: mode === 'development' ? 'eval' : false,
   entry: path.resolve(__dirname, 'src', 'index.jsx'),
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -32,18 +31,45 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/i,
+        test: /\.[tj]sx$/i,
         use: {
           loader: 'babel-loader',
           options: {
             presets: ["@babel/preset-react", "@babel/preset-env"],
           }
         }
-      }
+      },
       {
         test: /\.(sa|sc|c)ss$/i,
-        use: 
-      }
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                plugins: ['postcss-preset-env'],
+              }
+            }
+          },
+          'sass-loader',
+        ],
+      },
+      {
+        test: /\.(jpg|jpeg|gif|svg|png)$/i,
+        type: 'asset/resource',
+      },
+      {
+        test: /\.(woff|woff2)$/i,
+        type: 'asset/resource',
+        generator: {
+          filename: 'fonts/[hash][ext]',
+        }
+      },
+      {
+        test: /\.html$/i,
+        loader: 'html-loader',
+      },
     ]
   }
 }
